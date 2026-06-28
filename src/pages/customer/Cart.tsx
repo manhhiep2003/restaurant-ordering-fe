@@ -1,7 +1,8 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useCartStore } from '../../store/cart.store';
-import { ArrowLeft, Minus, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Minus, Plus, Trash2 } from 'lucide-react';
 import { formatVND } from '@/lib/currency';
+import { useCreateOrder } from '@/queries/useOrderQueries';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -11,15 +12,32 @@ const Cart = () => {
   // Lấy toàn bộ dữ liệu và hàm xử lý từ kho Zustand
   const { cart, totalPrice, updateQuantity, removeItem, clearCart } = useCartStore();
 
-  const handleOrder = async () => {
-    if (cart.length === 0) return;
+  const { mutate: createOrder, isPending } = useCreateOrder();
+
+  const handleOrder = () => {
+    if (cart.length === 0 || !tableId) return;
     
-    // TODO: Chỗ này sẽ gọi hàm React Query (Mutation) để gửi API POST /orders lên NestJS
-    console.log('Dữ liệu gửi lên server:', { tableId, items: cart });
-    
-    alert('Đã gửi đơn xuống bếp!');
-    clearCart(); // Xóa sạch giỏ hàng
-    navigate(`/menu/items?tableId=${tableId}`, { replace: true }); // Quay lại trang Menu
+    const payload = {
+      tableId: tableId,
+      items: cart.map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+        note: item.note,
+      })),
+    };
+
+    // Bắn API
+    createOrder(payload, {
+      onSuccess: () => {
+        alert('Ting ting! Bếp đã nhận được đơn của bạn.');
+        clearCart(); // Xóa sạch giỏ hàng sau khi gửi
+        navigate(`/menu/items?tableId=${tableId}`, { replace: true }); // Quay lại Menu
+      },
+      onError: (error: any) => {
+        const errorMsg = error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại';
+        alert(`Lỗi: ${errorMsg}`);
+      }
+    });
   };
 
   // Giao diện khi giỏ hàng không có món nào
@@ -107,9 +125,19 @@ const Cart = () => {
         </div>
         <button
           onClick={handleOrder}
-          className="w-full rounded-xl bg-blue-600 py-3.5 text-center font-bold text-white shadow-md transition-all hover:bg-blue-700 active:scale-[0.98]"
+          disabled={isPending}
+          className={`flex w-full items-center justify-center rounded-xl py-3.5 text-center font-bold text-white shadow-md transition-all 
+            ${isPending ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700 active:scale-[0.98]'}
+          `}
         >
-          Gửi Bếp Nấu Ngay
+          {isPending ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Đang gửi đơn...
+            </>
+          ) : (
+            'Gửi Bếp Nấu Ngay'
+          )}
         </button>
       </div>
     </div>
