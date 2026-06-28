@@ -51,7 +51,7 @@ const CheckStatus = () => {
         <AlertCircle className="mb-4 h-12 w-12 text-orange-500" />
         <h1 className="text-xl font-bold">Không thể phục vụ</h1>
         <p className="mt-2 text-gray-500">{errorMessage}</p>
-        <p className="mt-4 text-sm font-medium">Vui lòng gọi nhân viên để mở bàn!</p>
+        <p className="mt-4 text-sm font-medium">Vui lòng gọi nhân viên để được hỗ trọ!</p>
       </div>
     );
   }

@@ -8,7 +8,7 @@ import CustomerLayout from './layouts/CustomerLayout';
 
 // Pages - Khách hàng
 import Menu from './pages/customer/Menu';
-// import Cart from './pages/customer/Cart';
+import Cart from './pages/customer/Cart';
 
 // Pages - Nhân viên / Admin
 // import Login from './pages/auth/Login';
@@ -49,10 +49,10 @@ export const router = createBrowserRouter([
         path: 'items', // Đường dẫn: /menu/items (Trang xem danh sách món ăn)
         element: <Menu />,
       },
-    //   {
-    //     path: 'cart', // Đường dẫn: /menu/cart (Trang giỏ hàng của khách)
-    //     element: <Cart />,
-    //   },
+      {
+        path: 'cart', // Đường dẫn: /menu/cart (Trang giỏ hàng của khách)
+        element: <Cart />,
+      },
     ],
   },
 
