@@ -1,30 +1,29 @@
 import { useState } from 'react';
-import { useTables, useOpenTable, useCloseTable } from '../../queries/useTableQueries';
-import { Loader2, Users, CheckCircle, Ban, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTables, useOpenTable } from '../../queries/useTableQueries';
+import { useTableBill, useCheckoutTable } from '../../queries/useOrderQueries';
+import { Loader2, Users, CheckCircle, Receipt, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { formatVND } from '@/lib/currency';
 
 const TableOverview = () => {
-  // 1. Tạo state quản lý trang hiện tại
   const [currentPage, setCurrentPage] = useState(1);
-
-  // 2. Truyền currentPage vào hook
   const { data, isLoading, isError, isFetching } = useTables(currentPage);
-  
   const { mutate: openTable, isPending: isOpenPending } = useOpenTable();
-  const { mutate: closeTable, isPending: isClosePending } = useCloseTable();
+  
+  // State lưu lại ID của bàn đang được bấm chọn để thanh toán
+  const [checkoutTableId, setCheckoutTableId] = useState<string | null>(null);
+
+  // Lấy dữ liệu Hóa đơn dựa vào checkoutTableId
+  const { data: billData, isLoading: isBillLoading } = useTableBill(checkoutTableId);
+  
+  // Hook xử lý thanh toán
+  const { mutate: checkoutTable, isPending: isCheckoutPending } = useCheckoutTable();
 
   if (isLoading && !data) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
-      </div>
-    );
+    return <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-orange-500" /></div>;
   }
 
-  if (isError) {
-    return <div className="text-center text-red-500 font-medium">Lỗi tải sơ đồ bàn!</div>;
-  }
+  if (isError) return <div className="text-center text-red-500 font-medium">Lỗi tải sơ đồ bàn!</div>;
 
-  // 3. Tách data và meta từ API trả về
   const tables = data?.data || [];
   const meta = data?.meta;
 
@@ -34,10 +33,24 @@ const TableOverview = () => {
         openTable(tableId);
       }
     } else {
-      if (confirm('Xác nhận đóng bàn và kết thúc phiên ăn (Khách đã thanh toán)?')) {
-        closeTable(tableId);
-      }
+      // THAY ĐỔI: Bàn đang có khách -> Mở Modal thanh toán
+      setCheckoutTableId(tableId);
     }
+  };
+
+  const handleConfirmCheckout = () => {
+    if (!checkoutTableId) return;
+    
+    checkoutTable(checkoutTableId, {
+      onSuccess: () => {
+        alert('Thanh toán thành công!');
+        setCheckoutTableId(null); 
+      },
+      onError: (error: any) => {
+        const msg = error.response?.data?.message || 'Có lỗi xảy ra khi thanh toán';
+        alert(`Lỗi: ${msg}`);
+      }
+    });
   };
 
   return (
@@ -45,10 +58,8 @@ const TableOverview = () => {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Sơ đồ quản lý bàn</h1>
-          <p className="text-sm text-gray-500">Mở/Đóng bàn để kích hoạt mã QR cho khách hàng</p>
+          <p className="text-sm text-gray-500">Mở bàn, in hóa đơn và thanh toán</p>
         </div>
-        
-        {/* Nút mờ đi báo hiệu đang tải khi chuyển trang */}
         {isFetching && <span className="text-sm text-orange-500 animate-pulse font-medium">Đang cập nhật...</span>}
       </div>
 
@@ -56,7 +67,7 @@ const TableOverview = () => {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {tables.map((table) => {
           const isOccupied = table.status === 'OCCUPIED';
-          const isActionLoading = isOpenPending || isClosePending;
+          const isActionLoading = isOpenPending || (isCheckoutPending && checkoutTableId === table.id);
 
           return (
             <div
@@ -95,13 +106,13 @@ const TableOverview = () => {
                 >
                   {isOccupied ? (
                     <>
-                      <Ban size={16} />
-                      Thanh toán
+                      <Receipt size={16} /> {/* Đổi icon thành cái Hóa đơn */}
+                      Xem Bill / Tính tiền
                     </>
                   ) : (
                     <>
                       <CheckCircle size={16} />
-                      Mở bàn
+                      Mở bàn cho khách
                     </>
                   )}
                 </button>
@@ -111,7 +122,7 @@ const TableOverview = () => {
         })}
       </div>
 
-      {/* 4. THANH ĐIỀU HƯỚNG PHÂN TRANG (PAGINATION) */}
+      {/* Phân trang */}
       {meta && meta.lastPage > 1 && (
         <div className="mt-8 flex items-center justify-center gap-4">
           <button
@@ -121,11 +132,9 @@ const TableOverview = () => {
           >
             <ChevronLeft size={16} /> Trang trước
           </button>
-          
           <span className="text-sm font-medium text-gray-600">
             Trang <span className="font-bold text-gray-900">{meta.currentPage}</span> / {meta.lastPage}
           </span>
-          
           <button
             disabled={meta.nextPage === null}
             onClick={() => setCurrentPage(meta.nextPage as number)}
@@ -133,6 +142,87 @@ const TableOverview = () => {
           >
             Trang sau <ChevronRight size={16} />
           </button>
+        </div>
+      )}
+
+      {/* ======================================= */}
+      {/* MODAL HÓA ĐƠN (Chỉ hiện khi có checkoutTableId) */}
+      {/* ======================================= */}
+      {checkoutTableId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden">
+            
+            {/* Header Modal */}
+            <div className="flex items-center justify-between bg-gray-50 p-5 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <Receipt className="text-orange-600" />
+                Hóa Đơn Tạm Tính
+              </h2>
+              <button 
+                onClick={() => setCheckoutTableId(null)}
+                className="text-gray-400 hover:text-gray-700 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Nội dung Bill */}
+            <div className="p-5 min-h-50">
+              {isBillLoading ? (
+                <div className="flex h-full items-center justify-center flex-col text-gray-500">
+                  <Loader2 className="mb-2 h-8 w-8 animate-spin text-orange-500" />
+                  <p>Đang tổng hợp đơn hàng...</p>
+                </div>
+              ) : !billData || billData.orderCount === 0 ? (
+                <div className="text-center text-gray-500 py-10">
+                  Bàn này chưa gọi món nào.
+                </div>
+              ) : (
+                <>
+                  <div className="mb-4 flex justify-between text-sm text-gray-500 border-b border-dashed border-gray-300 pb-4">
+                    <span>Bàn: <strong className="text-gray-900">{billData.table.name}</strong></span>
+                    <span>Số lượt gọi món: <strong className="text-gray-900">{billData.orderCount}</strong></span>
+                  </div>
+
+                  <div className="max-h-[40vh] overflow-y-auto pr-2">
+                    <ul className="space-y-4">
+                      {billData.items.map((item: any, idx: number) => (
+                        <li key={idx} className="flex justify-between text-sm">
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-gray-800">{item.productName}</span>
+                            <span className="text-gray-500 text-xs">
+                              {formatVND(item.unitPrice)} x {item.quantity}
+                            </span>
+                          </div>
+                          <span className="font-bold text-gray-900">{formatVND(item.total)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Footer Tính tiền */}
+            <div className="bg-gray-50 p-5 border-t border-gray-200">
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-lg font-medium text-gray-600">TỔNG CỘNG</span>
+                <span className="text-3xl font-black text-red-600">
+                  {billData ? formatVND(billData.grandTotal) : '0 ₫'}
+                </span>
+              </div>
+              
+              <button
+                disabled={isCheckoutPending || !billData || billData.orderCount === 0}
+                onClick={handleConfirmCheckout}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-orange-600 py-4 text-lg font-bold text-white transition-all hover:bg-orange-700 active:scale-95 shadow-md disabled:bg-gray-400 disabled:shadow-none"
+              >
+                {isCheckoutPending ? <Loader2 className="animate-spin h-6 w-6" /> : <Receipt size={24} />}
+                Xác Nhận Thu Tiền & Đóng Bàn
+              </button>
+            </div>
+
+          </div>
         </div>
       )}
     </div>
