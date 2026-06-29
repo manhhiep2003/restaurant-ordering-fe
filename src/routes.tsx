@@ -17,6 +17,7 @@ import Login from './pages/auth/Login';
 import KitchenKanban from './pages/dashboard/KitchenKanban';
 import TableOverview from '@/pages/dashboard/TableOverview';
 import StaffOrders from '@/pages/dashboard/StaffOrders';
+import FoodManagement from '@/pages/dashboard/FoodManagement';
 
 const ProtectedRoute = ({ children, allowedRoles }: { children: ReactNode, allowedRoles?: string[] }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -68,14 +69,12 @@ export const router = createBrowserRouter([
   // LUỒNG ĐĂNG NHẬP (Nhân viên / Admin)
   // ==========================================
   {
-    element: <AuthLayout />, // Đặt AuthLayout làm khung bọc ngoài
+    element: <AuthLayout />,
     children: [
       {
         path: '/login',
         element: <Login />,
       },
-      // Sau này nếu có thêm trang quên mật khẩu thì chỉ cần ném vào đây
-      // { path: '/forgot-password', element: <ForgotPassword /> }
     ],
   },
 
@@ -91,7 +90,7 @@ export const router = createBrowserRouter([
     ),
     children: [
       {
-        path: 'tables', // Đường dẫn: /admin/tables (Màn hình tổng quan sơ đồ bàn)
+        path: 'tables', // Đường dẫn: /dashboard/tables (Màn hình tổng quan sơ đồ bàn)
         element: (
           <ProtectedRoute allowedRoles={['ADMIN', 'STAFF']}>
             <TableOverview />
@@ -114,14 +113,14 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-//       {
-//         path: 'foods', // Đường dẫn: /admin/foods (Màn hình quản lý Menu của Admin)
-//         element: (
-//           <ProtectedRoute allowedRoles={['ADMIN']}>
-//             <FoodManagement />
-//           </ProtectedRoute>
-//         ),
-//       },
+      {
+        path: 'foods',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <FoodManagement />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
 

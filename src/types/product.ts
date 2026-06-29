@@ -6,3 +6,5 @@ export interface Product {
   categoryId: string;
   isAvailable: boolean;
 }
+
+export type ProductPayload = Omit<Product, 'id'>;
