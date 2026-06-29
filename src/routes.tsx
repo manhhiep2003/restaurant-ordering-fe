@@ -13,6 +13,7 @@ import Cart from './pages/customer/Cart';
 // import Login from './pages/auth/Login';
 import KitchenKanban from './pages/dashboard/KitchenKanban';
 import DashboardLayout from '@/layouts/DashboardLayout';
+import TableOverview from '@/pages/dashboard/TableOverview';
 
 // Component bảo vệ tuyến đường (FE Guard)
 // Tạm thời viết đơn giản, sau này sẽ kết nối với Zustand Store để check token/role thật
@@ -73,14 +74,17 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      // {
-      //   path: 'tables', // Đường dẫn: /admin/tables (Màn hình tổng quan sơ đồ bàn)
-      //   element: (
-      //     <ProtectedRoute allowedRoles={['ADMIN', 'STAFF']}>
-      //       <TableOverview />
-      //     </ProtectedRoute>
-      //   ),
-      // },
+      {
+        path: 'tables', // Đường dẫn: /admin/tables (Màn hình tổng quan sơ đồ bàn)
+        element: (
+          // <ProtectedRoute allowedRoles={['ADMIN', 'STAFF']}>
+          //   <TableOverview />
+          // </ProtectedRoute>
+          <ProtectedRoute>
+            <TableOverview />
+          </ProtectedRoute>
+        ),
+      },
       {
         path: 'kitchen',
         element: (
