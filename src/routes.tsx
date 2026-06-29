@@ -14,6 +14,7 @@ import Cart from './pages/customer/Cart';
 import KitchenKanban from './pages/dashboard/KitchenKanban';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import TableOverview from '@/pages/dashboard/TableOverview';
+import StaffOrders from '@/pages/dashboard/StaffOrders';
 
 // Component bảo vệ tuyến đường (FE Guard)
 // Tạm thời viết đơn giản, sau này sẽ kết nối với Zustand Store để check token/role thật
@@ -93,6 +94,14 @@ export const router = createBrowserRouter([
           // </ProtectedRoute>
           <ProtectedRoute>
             <KitchenKanban />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'orders',
+        element: (
+          <ProtectedRoute>
+            <StaffOrders />
           </ProtectedRoute>
         ),
       },

@@ -1,11 +1,12 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { LayoutDashboard, ChefHat, UtensilsCrossed, LogOut } from 'lucide-react';
+import { LayoutDashboard, ChefHat, UtensilsCrossed, LogOut, BellRing } from 'lucide-react';
 
 const DashboardLayout = () => {
   // Menu điều hướng cho nhân viên
   const navItems = [
     { path: '/dashboard/tables', name: 'Sơ đồ bàn', icon: <LayoutDashboard size={20} /> },
     { path: '/dashboard/kitchen', name: 'Nhà bếp', icon: <ChefHat size={20} /> },
+    { path: '/dashboard/orders', name: 'Trạm phục vụ', icon: <BellRing size={20} /> },
     { path: '/dashboard/foods', name: 'Quản lý Menu', icon: <UtensilsCrossed size={20} /> },
   ];
 
