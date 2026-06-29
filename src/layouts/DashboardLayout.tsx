@@ -1,26 +1,35 @@
 import { Outlet, NavLink } from 'react-router-dom';
 import { LayoutDashboard, ChefHat, UtensilsCrossed, LogOut, BellRing } from 'lucide-react';
+import { useAuthStore } from '../store/auth.store';
 
 const DashboardLayout = () => {
-  // Menu điều hướng cho nhân viên
-  const navItems = [
-    { path: '/dashboard/tables', name: 'Sơ đồ bàn', icon: <LayoutDashboard size={20} /> },
-    { path: '/dashboard/kitchen', name: 'Nhà bếp', icon: <ChefHat size={20} /> },
-    { path: '/dashboard/orders', name: 'Trạm phục vụ', icon: <BellRing size={20} /> },
-    { path: '/dashboard/foods', name: 'Quản lý Menu', icon: <UtensilsCrossed size={20} /> },
+  // 1. Lấy thông tin user và hàm logout từ Zustand
+  const { user, logout } = useAuthStore();
+
+  // 2. Định nghĩa toàn bộ Menu kèm theo Quyền truy cập (roles)
+  const allNavItems = [
+    { path: '/dashboard/tables', name: 'Sơ đồ bàn', icon: <LayoutDashboard size={20} />, roles: ['ADMIN', 'STAFF'] },
+    { path: '/dashboard/orders', name: 'Trạm phục vụ', icon: <BellRing size={20} />, roles: ['ADMIN', 'STAFF'] },
+    { path: '/dashboard/kitchen', name: 'Nhà bếp', icon: <ChefHat size={20} />, roles: ['ADMIN', 'KITCHEN'] },
+    { path: '/dashboard/foods', name: 'Quản lý Menu', icon: <UtensilsCrossed size={20} />, roles: ['ADMIN'] },
   ];
+
+  // 3. Lọc ra những menu mà user này được phép nhìn thấy
+  const allowedNavItems = allNavItems.filter((item) => 
+    item.roles.includes(user?.role || '')
+  );
 
   return (
     <div className="flex min-h-screen bg-gray-50 font-sans text-gray-900">
       
-      {/* Sidebar (Thanh điều hướng bên trái) */}
       <aside className="flex w-64 flex-col border-r border-gray-200 bg-white shadow-sm">
         <div className="flex h-16 items-center justify-center border-b border-gray-100 px-6">
           <h1 className="text-xl font-black tracking-wider text-orange-600">THUCDON<span className="text-gray-800">.COM</span></h1>
         </div>
 
         <nav className="flex-1 space-y-1 p-4">
-          {navItems.map((item) => (
+          {/* Render các menu đã được lọc quyền */}
+          {allowedNavItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
@@ -38,28 +47,34 @@ const DashboardLayout = () => {
           ))}
         </nav>
 
-        {/* Nút đăng xuất ở đáy Sidebar */}
+        {/* 4. Gắn sự kiện đăng xuất */}
         <div className="border-t border-gray-100 p-4">
-          <button className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50">
+          <button 
+            onClick={logout}
+            className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+          >
             <LogOut size={20} />
             Đăng xuất
           </button>
         </div>
       </aside>
 
-      {/* Main Content (Khu vực hiển thị các trang con như Bếp, Sơ đồ bàn) */}
       <main className="flex-1 overflow-y-auto">
         <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-8 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-800">Ca làm việc: Sáng</h2>
+          <h2 className="text-lg font-semibold text-gray-800">Bảng điều khiển</h2>
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-100 text-orange-600 font-bold">
-              NV
+            {/* Lấy chữ cái đầu tiên trong tên để làm Avatar */}
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-100 text-orange-600 font-bold uppercase">
+              {user?.fullName ? user.fullName.charAt(0) : 'NV'}
             </div>
-            <span className="text-sm font-medium">Nhân viên Phục vụ</span>
+            {/* Hiển thị tên thật và chức vụ */}
+            <div className="flex flex-col">
+              <span className="text-sm font-bold leading-tight">{user?.fullName || 'Người dùng'}</span>
+              <span className="text-xs text-gray-500 font-medium">{user?.role}</span>
+            </div>
           </div>
         </header>
 
-        {/* Cắm Outlet để render component KitchenKanban hoặc TableOverview vào đây */}
         <div className="p-8">
           <Outlet />
         </div>
