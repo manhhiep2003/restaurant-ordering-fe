@@ -4,6 +4,7 @@ import { ChevronLeft, Loader2, ReceiptText, Utensils, CheckCircle2 } from 'lucid
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useTable } from '@/queries/useTableQueries';
 
 const OrderHistory = () => {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ const OrderHistory = () => {
 
   // Gọi hook lấy hóa đơn tạm tính của bàn (tổng hợp các món đã order)
   const { data: billData, isLoading } = useCustomerHistory(tableId);
+
+  const { data: table } = useTable(tableId);
 
   if (!tableId) {
     return <div className="p-4 text-center text-red-500">Lỗi: Không tìm thấy mã bàn!</div>;
@@ -24,7 +27,7 @@ const OrderHistory = () => {
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
           <ChevronLeft className="h-6 w-6 text-gray-700" />
         </Button>
-        <h1 className="text-lg font-bold text-gray-900">Món đã gọi - Bàn {tableId.slice(-4)}</h1>
+        <h1 className="text-lg font-bold text-gray-900">Món đã gọi - {table?.name}</h1>
       </header>
 
       {/* Body */}

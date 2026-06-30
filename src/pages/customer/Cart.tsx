@@ -15,8 +15,7 @@ const Cart = () => {
 
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const { data } = useTable(tableId);
-  const table = data?.data;
+  const { data: table } = useTable(tableId);
 
   const handleOrder = () => {
     if (cart.length === 0 || !tableId) return;
@@ -91,7 +90,7 @@ const Cart = () => {
         ))}
       </div>
 
-      {/* Thanh Xác Nhận Gọi Món (Gogi Style) */}
+      {/* Thanh Xác Nhận Gọi Món */}
       <div className="fixed bottom-0 z-50 w-full max-w-md border-t border-gray-100 bg-white p-4 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
         <p className="mb-2 text-xs text-gray-500">Sẽ được cộng vào bill thanh toán</p>
         <div className="flex items-center justify-between">

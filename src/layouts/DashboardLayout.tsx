@@ -1,6 +1,10 @@
 import { Outlet, NavLink } from 'react-router-dom';
 import { LayoutDashboard, ChefHat, UtensilsCrossed, LogOut, BellRing, Tags } from 'lucide-react';
 import { useAuthStore } from '../store/auth.store';
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
+import { useSocket } from '@/hooks/useSocket';
+import { useEffect } from 'react';
 
 const DashboardLayout = () => {
   // 1. Lấy thông tin user và hàm logout từ Zustand
@@ -19,6 +23,30 @@ const DashboardLayout = () => {
   const allowedNavItems = allNavItems.filter((item) => 
     item.roles.includes(user?.role || '')
   );
+
+  const { socket } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    // Lắng nghe sự kiện gọi phục vụ
+    socket.on('onCallStaff', (data: { tableName: string; time: string }) => {
+      
+      // 2. Gọi thẳng toast.error để có màu đỏ cảnh báo (richColors)
+      toast.error("🔔 YÊU CẦU PHỤC VỤ!", {
+        description: `${data.tableName} đang gọi nhân viên lúc ${data.time}`,
+        duration: 10000,
+      });
+
+      // Phát âm thanh báo động (Tùy chọn)
+      // const audio = new Audio('/notification.mp3');
+      // audio.play().catch(e => console.log("Chờ tương tác người dùng để phát âm thanh"));
+    });
+
+    return () => {
+      socket.off('onCallStaff');
+    };
+  }, [socket]);
 
   return (
     <div className="flex min-h-screen bg-gray-50 font-sans text-gray-900">
@@ -80,7 +108,7 @@ const DashboardLayout = () => {
           <Outlet />
         </div>
       </main>
-
+      <Toaster position="top-right" richColors />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { data, useNavigate, useSearchParams } from 'react-router-dom';
 import { useProducts } from '../../queries/useProductQueries';
 import { useCategories } from '../../queries/useCategoryQueries';
 import { useCartStore } from '../../store/cart.store';
@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useTable } from '@/queries/useTableQueries';
+import { useSocket } from '@/hooks/useSocket';
 
 const Menu = () => {
   const navigate = useNavigate();
@@ -23,8 +24,19 @@ const Menu = () => {
   const { cart, addItem, removeItem, updateQuantity } = useCartStore();
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const { data } = useTable(tableId);
-  const table = data?.data;
+  const { data: table } = useTable(tableId);
+
+  const { socket } = useSocket();
+
+  const handleCallStaff = () => {
+  if (!socket || !tableId) return;
+  socket.emit('callStaff', {
+    tableId: tableId,
+    tableName: table?.name,
+  });
+
+  alert('Đã gửi yêu cầu! Nhân viên sẽ đến ngay.');
+};
 
   // State lọc danh mục
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -54,6 +66,7 @@ const Menu = () => {
           </div>
           <div className="flex items-center gap-3">
             <Button
+              onClick={handleCallStaff}
               variant="destructive"
               size="sm"
               className="rounded-full bg-red-600 text-white font-semibold hover:bg-red-700"
