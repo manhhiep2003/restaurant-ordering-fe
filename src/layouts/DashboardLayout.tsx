@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { LayoutDashboard, ChefHat, UtensilsCrossed, LogOut, BellRing } from 'lucide-react';
+import { LayoutDashboard, ChefHat, UtensilsCrossed, LogOut, BellRing, Tags } from 'lucide-react';
 import { useAuthStore } from '../store/auth.store';
 
 const DashboardLayout = () => {
@@ -11,6 +11,7 @@ const DashboardLayout = () => {
     { path: '/dashboard/tables', name: 'Sơ đồ bàn', icon: <LayoutDashboard size={20} />, roles: ['ADMIN', 'STAFF'] },
     { path: '/dashboard/orders', name: 'Trạm phục vụ', icon: <BellRing size={20} />, roles: ['ADMIN', 'STAFF'] },
     { path: '/dashboard/kitchen', name: 'Nhà bếp', icon: <ChefHat size={20} />, roles: ['ADMIN', 'KITCHEN'] },
+    { path: '/dashboard/categories', name: 'Quản lý Danh mục', icon: <Tags size={20} />, roles: ['ADMIN'] },
     { path: '/dashboard/foods', name: 'Quản lý Menu', icon: <UtensilsCrossed size={20} />, roles: ['ADMIN'] },
   ];
 

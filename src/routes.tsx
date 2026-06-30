@@ -18,6 +18,7 @@ import KitchenKanban from './pages/dashboard/KitchenKanban';
 import TableOverview from '@/pages/dashboard/TableOverview';
 import StaffOrders from '@/pages/dashboard/StaffOrders';
 import FoodManagement from '@/pages/dashboard/FoodManagement';
+import CategoryManagement from '@/pages/dashboard/CategoryManagement';
 
 const ProtectedRoute = ({ children, allowedRoles }: { children: ReactNode, allowedRoles?: string[] }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -120,6 +121,14 @@ export const router = createBrowserRouter([
             <FoodManagement />
           </ProtectedRoute>
         ),
+      },
+      { 
+        path: 'categories', 
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <CategoryManagement />
+          </ProtectedRoute>
+        ) 
       },
     ],
   },

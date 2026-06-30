@@ -43,3 +43,14 @@ export const useCloseTable = () => {
     },
   });
 };
+
+export const useTable = (tableId: string | null) => {
+  return useQuery({
+    queryKey: ['table', tableId],
+    queryFn: () => {
+      if (!tableId) throw new Error('Không tìm thấy bàn');
+      return tableApi.getTableById(tableId);
+    },
+    enabled: !!tableId,
+  });
+};

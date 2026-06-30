@@ -19,4 +19,8 @@ export const tableApi = {
   closeTable: (id: string) => {
     return axiosClient.post<Table>(`/tables/${id}/close`);
   },
+
+  getTableById: (id: string) => {
+    return axiosClient.get(`/tables/${id}`);
+  },
 };
