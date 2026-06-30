@@ -11,6 +11,7 @@ import AuthLayout from '@/layouts/AuthLayout';
 // Pages - Khách hàng
 import Menu from './pages/customer/Menu';
 import Cart from './pages/customer/Cart';
+import OrderHistory from '@/pages/customer/OrderHistory';
 
 // Pages - Nhân viên / Admin
 import Login from './pages/auth/Login';
@@ -63,6 +64,10 @@ export const router = createBrowserRouter([
         path: 'cart', // Đường dẫn: /menu/cart (Trang giỏ hàng của khách)
         element: <Cart />,
       },
+      {
+        path: 'history',
+        element: <OrderHistory/>
+      }
     ],
   },
 

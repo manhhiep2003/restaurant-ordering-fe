@@ -13,4 +13,8 @@ export const orderApi = {
   checkout: (tableId: string) => {
     return axiosClient.post(`/orders/table/${tableId}/checkout`);
   },
+
+  getPublicBill: (tableId: string) => {
+    return axiosClient.get(`/orders/public/table/${tableId}/bill`);
+  },
 };

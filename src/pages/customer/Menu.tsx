@@ -53,8 +53,13 @@ const Menu = () => {
             <span className="font-bold text-gray-900">{table?.name}</span>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="destructive" size="sm" className="rounded-full bg-red-600 font-semibold hover:bg-red-700">
-              <BellRing className="mr-1 h-4 w-4" /> Gọi NV
+            <Button
+              variant="destructive"
+              size="sm"
+              className="rounded-full bg-red-600 text-white font-semibold hover:bg-red-700"
+            >
+              <BellRing className="mr-1 h-4 w-4" />
+              Gọi NV
             </Button>
             <div className="relative cursor-pointer" onClick={() => navigate(`/menu/cart?tableId=${tableId}`)}>
               <ShoppingCart className="h-6 w-6 text-gray-700" />
@@ -64,7 +69,9 @@ const Menu = () => {
                 </Badge>
               )}
             </div>
-            <ClipboardList className="h-6 w-6 text-gray-700 cursor-pointer" />
+            <div className="cursor-pointer rounded-full p-1 hover:bg-gray-100" onClick={() => navigate(`/menu/history?tableId=${tableId}`)}>
+              <ClipboardList className="h-6 w-6 text-gray-700" />
+            </div>
           </div>
         </div>
 

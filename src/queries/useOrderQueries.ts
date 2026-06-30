@@ -38,3 +38,13 @@ export const useCheckoutTable = () => {
     },
   });
 };
+
+export const useCustomerHistory = (tableId: string | null) => {
+  return useQuery({
+    queryKey: ['customerHistory', tableId],
+    queryFn: () => orderApi.getPublicBill(tableId as string),
+    enabled: !!tableId,
+    // Refetch mỗi lần khách mở lại tab để có dữ liệu mới nhất
+    refetchOnWindowFocus: true, 
+  });
+};
