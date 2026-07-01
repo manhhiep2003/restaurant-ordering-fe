@@ -10,18 +10,25 @@ const Cart = () => {
   const [searchParams] = useSearchParams();
   const tableId = searchParams.get('tableId');
 
-  const { cart, updateQuantity, removeItem, clearCart } = useCartStore();
-  const { mutate: createOrder, isPending } = useCreateOrder();
+const { cart, updateQuantity, removeItem, clearCart, sessionId } = useCartStore();
+const { mutate: createOrder, isPending } = useCreateOrder();
 
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const { data: table } = useTable(tableId);
 
+  console.log('cart', cart)
+    console.log('table',tableId)
+    console.log('session' ,sessionId)
   const handleOrder = () => {
-    if (cart.length === 0 || !tableId) return;
+    if (cart.length === 0 || !tableId || !sessionId) {
+      alert('Không tìm thấy phiên ăn hợp lệ. Vui lòng quét lại mã QR.');
+      return;
+    }
+    
     
     createOrder({
-      tableId,
+      sessionId: sessionId,
       items: cart.map(item => ({ productId: item.id, quantity: item.quantity })),
     }, {
       onSuccess: () => {
@@ -53,7 +60,7 @@ const Cart = () => {
         <button onClick={() => navigate(-1)} className="rounded-full p-2 hover:bg-gray-100">
           <ChevronLeft className="h-6 w-6 text-gray-700" />
         </button>
-        <h1 className="text-lg font-bold text-gray-900">Xác nhận gọi món - Bàn {table?.name}</h1>
+        <h1 className="text-lg font-bold text-gray-900">Xác nhận gọi món - {table?.name}</h1>
       </header>
 
       {/* Danh sách món */}

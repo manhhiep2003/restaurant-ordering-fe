@@ -5,7 +5,7 @@ export interface OrderItemPayload {
 }
 
 export interface CreateOrderPayload {
-  tableId: string;
+  sessionId: string;
   items: OrderItemPayload[];
 }
 

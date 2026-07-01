@@ -61,7 +61,7 @@ const KitchenKanban = () => {
               <div className={`p-4 border-b ${isPending ? 'bg-red-50 border-red-100' : 'bg-yellow-50 border-yellow-100'}`}>
                 <div className="flex justify-between items-center mb-2">
                   <h2 className={`text-2xl font-bold ${isPending ? 'text-red-700' : 'text-yellow-700'}`}>
-                    {order.table.name}
+                    {/*order.table.name*/}
                   </h2>
                   <span className={`px-2 py-1 text-xs font-bold rounded ${isPending ? 'bg-red-200 text-red-800' : 'bg-yellow-200 text-yellow-800'}`}>
                     {isPending ? 'CHỜ XÁC NHẬN' : 'ĐANG NẤU'}
